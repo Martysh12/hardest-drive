@@ -24,7 +24,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.NoPrivateMessage):
         await ctx.send(ERRORS["guildonly"])
     elif isinstance(error, commands.MissingRequiredArguments):
-        await ctx.send(ERRORS["lowargs"])
+        await ctx.send(ERRORS["args"])
 
 # COMMANDS #
 

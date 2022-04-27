@@ -19,6 +19,6 @@ from the start of the hard drive.
 """
 
 ERRORS = {
-    "lowargs": "Please pass all required arguments!",
+    "args": "Please pass all required arguments!",
     "guildonly": "Commands can only be used in servers!"
 }
