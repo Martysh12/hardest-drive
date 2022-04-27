@@ -13,6 +13,6 @@ The start position in `{PREFIX}write` is counted from 0,
 meaning that writing from start position `0` would write
 from the start of the hard drive.
 
-Data in hex means data structured like this:
+"Data in hex" means data structured like this:
 `FF4BAA10`
 """
