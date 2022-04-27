@@ -1,6 +1,7 @@
 PREFIX = "hdd$"
 
 HELP = f"""The bot is simple - you store and read data.
+There are only 2 commands, `read` and `write`.
 
 Commands:
 ```
