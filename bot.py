@@ -22,9 +22,9 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.NoPrivateMessage):
-        ctx.send(ERRORS["guildonly"])
+        await ctx.send(ERRORS["guildonly"])
     elif isinstance(error, commands.MissingRequiredArguments):
-        ctx.send(ERRORS["lowargs"])
+        await ctx.send(ERRORS["lowargs"])
 
 # COMMANDS #
 
