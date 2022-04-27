@@ -17,3 +17,8 @@ from the start of the hard drive.
 "Data in hex" means data structured like this:
 `FF4BAA10`
 """
+
+ERRORS = {
+    "lowargs": "Please pass all required arguments!",
+    "guildonly": "Commands can only be used in servers!"
+}

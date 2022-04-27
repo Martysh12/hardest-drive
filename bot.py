@@ -21,6 +21,7 @@ async def on_ready():
 # COMMANDS #
 
 @bot.command()
+@commands.guild_only()
 async def help(ctx):
     """Show help"""
     await ctx.send(HELP)
@@ -28,3 +29,11 @@ async def help(ctx):
 bot.run(os.getenv("TOKEN"))
 
 ############
+
+# Checking for errors
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.NoPrivateMessage):
+        ctx.send(ERRORS["guildonly"])
+    elif isinstance(error, commands.MissingRequiredArguments):
+        ctx.send(ERRORS["lowargs"])
