@@ -42,7 +42,8 @@ def write_history(user_id: int, username: str, is_write: bool, time: str, data: 
         to_append = {
             "id": user_id,
             "name": username,
-            "is_write": is_write
+            "is_write": is_write,
+            "timestamp": time
         }
 
         if is_write:
