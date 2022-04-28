@@ -5,7 +5,7 @@ There are only 2 commands, `read` and `write`.
 
 Commands:
 ```
- - {PREFIX}read                        - Read data from the Hard Drive
+ - {PREFIX}read <opt: bytes per line>  - Read data from the Hard Drive
  - {PREFIX}write <start> <data in hex> - Write data to the Hard Drive
 ```
 
