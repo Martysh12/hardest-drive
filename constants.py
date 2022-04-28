@@ -25,5 +25,6 @@ ERRORS = {
     "invalidcmd"  : "Invalid command!",
     "bprtoolow"   : "Too little bytes per line!",
     "badstartpos" : "Invalid start position!",
-    "invalidhex"  : "Invalid hexadecimal string!"
+    "invalidhex"  : "Invalid hexadecimal string!",
+    "outofbounds" : "Data is out of bounds!"
 }
