@@ -71,7 +71,9 @@ async def read(ctx, bpr: int=16):
     if bpr < 4:
         await ctx.send(ERRORS["bprtoolow"])
     with open("drive", "rb") as f:
-        await ctx.send("```" + make_hexdump(f.read(), bytes_per_line=bpr) + "```")
+        embed = nextcord.Embed(title="Hexdump", description=f"```{make_hexdump(f.read(), bytes_per_line=bpr)}```", color=0x6ad643)
+        embed.set_footer(text="Page X out of Y")
+        await ctx.send(embed=embed)
 
 @bot.command()
 @commands.guild_only()
