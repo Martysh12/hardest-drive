@@ -5,8 +5,11 @@ There are only 2 commands, `read` and `write`.
 
 Commands:
 ```
- - {PREFIX}read <opt: bytes per line>  - Read data from the Hard Drive
- - {PREFIX}write <start> <data in hex> - Write data to the Hard Drive
+ - {PREFIX}read <opt: page> <opt: bytes per line> 
+    - Read data from the Hard Drive
+
+ - {PREFIX}write <start> <data in hex>
+    - Write data to the Hard Drive
 ```
 
 Notes:
@@ -26,5 +29,8 @@ ERRORS = {
     "bprtoolow"   : "Too little bytes per line!",
     "badstartpos" : "Invalid start position!",
     "invalidhex"  : "Invalid hexadecimal string!",
-    "outofbounds" : "Data is out of bounds!"
+    "outofbounds" : "Data is out of bounds!",
+    "invalidpage" : "Invalid page number!"
 }
+
+BYTES_PER_PAGE = 128
