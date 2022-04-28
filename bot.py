@@ -66,13 +66,24 @@ async def help(ctx):
 
 @bot.command()
 @commands.guild_only()
-async def read(ctx, bpr: int=16):
+async def read(ctx, page: int=1, bpr: int=8):
     """Read file"""
     if bpr < 4:
         await ctx.send(ERRORS["bprtoolow"])
+        return
+
     with open("drive", "rb") as f:
-        embed = nextcord.Embed(title="Hexdump", description=f"```{make_hexdump(f.read(), bytes_per_line=bpr)}```", color=0x6ad643)
-        embed.set_footer(text="Page X out of Y")
+        drive_content = f.read()
+        drive_pages = [drive_content[i:i + BYTES_PER_PAGE] for i in range(0, len(drive_content), BYTES_PER_PAGE)]
+
+        try:
+            current_page = drive_pages[page - 1]
+        except:
+            await ctx.send(ERRORS["invalidpage"])
+            return
+
+        embed = nextcord.Embed(title="Hexdump", description=f"```{make_hexdump(current_page, bytes_per_line=bpr, offset=(page - 1) * BYTES_PER_PAGE)}```", color=0x6ad643)
+        embed.set_footer(text=f"Page {page} out of {len(drive_pages)}")
         await ctx.send(embed=embed)
 
 @bot.command()
