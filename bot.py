@@ -3,6 +3,7 @@ from nextcord.ext import commands
 
 from dotenv import load_dotenv
 
+import binascii
 import os
 
 from constants import *
