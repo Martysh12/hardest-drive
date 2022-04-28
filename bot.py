@@ -1,9 +1,10 @@
 import nextcord
-from nextcord.ext import commands
+from nextcord.ext import commands, tasks
 
 from dotenv import load_dotenv
 
 import binascii
+import datetime
 import os
 
 from constants import *
@@ -35,6 +36,16 @@ def make_hexdump(data, bytes_per_line=16, offset=0x0000):
 
 #############
 
+
+
+# VARIABLES #
+
+global_num_reads = 0
+global_num_writes = 0
+global_bytes_written = 0
+
+#############
+
 print(f"HardestDrive v1.0 by Martysh12#1610")
 
 bot = commands.Bot(command_prefix=PREFIX, activity=nextcord.Game(PREFIX + "help"))
@@ -43,6 +54,22 @@ bot.remove_command('help')
 @bot.event
 async def on_ready():
     print(f"Ready! Logged in as {bot.user} (ID: {bot.user.id})")
+
+@tasks.loop(minutes=5)
+async def write_read_report():
+    print(f"[{datetime.datetime.now().strftime('%X')}] Operations since {datetime.datetime.now() - datetime.timedelta(minutes=5)}:")
+    print("\t" + "Reads: "         + str(global_num_reads))
+    print("\t" + "Writes: "        + str(global_num_writes))
+    print("\t" + "Bytes written: " + str(global_bytes_written))
+    print()
+
+    global global_num_reads
+    global global_num_writes
+    global global_bytes_written
+
+    global_num_reads = 0
+    global_num_writes = 0
+    global_bytes_written = 0
 
 # Checking for errors
 @bot.event
@@ -86,6 +113,9 @@ async def read(ctx, page: int=1, bpr: int=8):
         embed.set_footer(text=f"Page {page} out of {len(drive_pages)}")
         await ctx.send(embed=embed)
 
+        global global_num_reads
+        global_num_reads += 1
+
 @bot.command()
 @commands.guild_only()
 async def write(ctx, start_pos, data):
@@ -114,6 +144,13 @@ async def write(ctx, start_pos, data):
 
     await ctx.send(f"Wrote {len(b)} byte(s) to position {parsed_start_pos} successfully!")
 
+    global global_num_writes
+    global global_bytes_written
+
+    global_num_writes += 1
+    global_bytes_written += len(b)
+
+write_read_report.start()
 bot.run(os.getenv("TOKEN"))
 
 ############
