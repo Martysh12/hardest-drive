@@ -49,10 +49,10 @@ async def on_ready():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.NoPrivateMessage):
         await ctx.send(ERRORS["guildonly"])
-    elif isinstance(error, commands.errors.MissingRequiredArgument):
-        await ctx.send(ERRORS["args"])
     elif isinstance(error, commands.errors.CommandNotFound):
         await ctx.send(ERRORS["invalidcmd"])
+    elif isinstance(error, commands.errors.MissingRequiredArgument):
+        await ctx.send(ERRORS["args"])
     else:
         raise error
 
@@ -68,6 +68,8 @@ async def help(ctx):
 @commands.guild_only()
 async def read(ctx, bpr=16):
     """Read file"""
+    if bpr < 4:
+        await ctx.send(ERRORS["bprtoolow"])
     with open("drive", "rb") as f:
         await ctx.send("```" + make_hexdump(f.read(), bytes_per_line=bpr) + "```")
 

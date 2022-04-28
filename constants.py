@@ -14,12 +14,14 @@ The start position in `{PREFIX}write` is counted from 0,
 meaning that writing from start position `0` would write
 from the start of the hard drive.
 
-"Data in hex" means data structured like this:
-`FF4BAA10`
+"Data in hex" means data structured like this: `FF4BAA10`
+
+The `bytes per line` field in `read` cannot be less than 4.
 """
 
 ERRORS = {
     "args": "Please pass all required arguments!",
     "guildonly": "Commands can only be used in servers!",
-    "invalidcmd": "Invalid command!"
+    "invalidcmd": "Invalid command!",
+    "bprtoolow": "Too little bytes per line!"
 }
