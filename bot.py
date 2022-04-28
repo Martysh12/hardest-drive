@@ -67,6 +67,10 @@ global_num_reads = 0
 global_num_writes = 0
 global_bytes_written = 0
 
+limits = {}
+
+limits_last_cleared = 0
+
 #############
 
 # Setting up files
@@ -102,6 +106,18 @@ async def write_read_report():
     global_num_reads = 0
     global_num_writes = 0
     global_bytes_written = 0
+
+@tasks.loop(minutes=LIMIT_RESET_MINUTES)
+async def clear_limits():
+    global limits
+    global limits_last_cleared
+
+    for i in limits.keys():
+        limits[i] = 8
+
+    limits_last_cleared = datetime.datetime.now()
+
+    print(f"[{datetime.datetime.now().strftime('%X')}] Limits have been reset.")
 
 # Checking for errors
 @bot.event
@@ -158,6 +174,10 @@ async def read(ctx, page: int=1, bpr: int=8):
 @commands.guild_only()
 async def write(ctx, start_pos, data):
     """Read file"""
+
+    if ctx.author.id not in limits:
+        limits[ctx.author.id] = 8
+
     try:
         parsed_start_pos = int(start_pos, 0)
     except ValueError:
@@ -170,6 +190,10 @@ async def write(ctx, start_pos, data):
         await ctx.send(ERRORS["invalidhex"])
         return
 
+    if len(b) > limits[ctx.author.id]:
+        await ctx.send(ERRORS["limited"].format(len(b), limits[ctx.author.id]))
+        return
+
     with open("drive", "rb") as f:
         file_data = f.read()
 
@@ -178,7 +202,7 @@ async def write(ctx, start_pos, data):
             return
 
     with open("drive", "wb") as f:
-        f.write(file_data[:parsed_start_pos] + b + file_data[parsed_start_pos: - len(b)])
+        f.write(file_data[:parsed_start_pos] + b + file_data[parsed_start_pos + len(b):])
 
     global global_num_writes
     global global_bytes_written
@@ -188,9 +212,24 @@ async def write(ctx, start_pos, data):
 
     write_history(ctx.author.id, str(ctx.message.author), True, datetime.datetime.now().isoformat(), b)
 
+    limits[ctx.author.id] -= len(b)
+
     await ctx.send(f"Wrote {len(b)} byte(s) to position {parsed_start_pos} successfully!")
 
+@bot.command()
+@commands.guild_only()
+async def limit(ctx):
+    if ctx.author.id not in limits:
+        limits[ctx.author.id] = 8
+
+    message = ""
+    message += f"You have {limits[ctx.author.id]} byte(s) left.\n"
+    message += f"Limits reset <t:{round((limits_last_cleared + datetime.timedelta(minutes=5)).timestamp())}:R>."
+
+    await ctx.send(message)
+
 write_read_report.start()
+clear_limits.start()
 bot.run(os.getenv("TOKEN"))
 
 ############
