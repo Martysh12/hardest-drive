@@ -109,8 +109,6 @@ async def write(ctx, start_pos, data):
             await ctx.send(ERRORS["outofbounds"])
             return
 
-        print(file_data)
-
     with open("drive", "wb") as f:
         f.write(file_data[:parsed_start_pos] + b + file_data[parsed_start_pos: - len(b)])
 
