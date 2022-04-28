@@ -20,9 +20,10 @@ The `bytes per line` field in `read` cannot be less than 4.
 """
 
 ERRORS = {
-    "args":        "Please pass all required arguments!",
-    "guildonly":   "Commands can only be used in servers!",
-    "invalidcmd":  "Invalid command!",
-    "bprtoolow":   "Too little bytes per line!",
-    "badstartpos": "Invalid start position!"
+    "args"        : "Please pass all required arguments!",
+    "guildonly"   : "Commands can only be used in servers!",
+    "invalidcmd"  : "Invalid command!",
+    "bprtoolow"   : "Too little bytes per line!",
+    "badstartpos" : "Invalid start position!",
+    "invalidhex"  : "Invalid hexadecimal string!"
 }
