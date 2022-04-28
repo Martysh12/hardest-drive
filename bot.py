@@ -83,15 +83,15 @@ async def on_ready():
 
 @tasks.loop(minutes=5)
 async def write_read_report():
+    global global_num_reads
+    global global_num_writes
+    global global_bytes_written
+
     print(f"[{datetime.datetime.now().strftime('%X')}] Operations since {datetime.datetime.now() - datetime.timedelta(minutes=5)}:")
     print("\t" + "Reads: "         + str(global_num_reads))
     print("\t" + "Writes: "        + str(global_num_writes))
     print("\t" + "Bytes written: " + str(global_bytes_written))
     print()
-
-    global global_num_reads
-    global global_num_writes
-    global global_bytes_written
 
     global_num_reads = 0
     global_num_writes = 0
