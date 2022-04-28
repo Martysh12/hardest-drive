@@ -19,15 +19,19 @@ def make_hexdump(data, bytes_per_line=16, offset=0x0000):
         for i in range(0, len(lst), n):
             yield lst[i:i + n]
 
-    print(" " * 7 + " ".join([f"{i:02X}" for i in range(bytes_per_line)]))
+    text = ""
+    text += " " * 7 + " ".join([f"{i:02X}" for i in range(bytes_per_line)]) + "\n"
     
     counter = offset
     for i in chunks(data, bytes_per_line):
-        print(f"{counter:04X} :",
-            binascii.hexlify(i, " ").decode("UTF-8").ljust(bytes_per_line * 3)
-            + "".join([chr(j) if chr(j).isascii() and chr(j).isprintable() else "." for j in i]))
+        text += f"{counter:04X} : "                                                              \
+            + binascii.hexlify(i, " ").decode("UTF-8").ljust(bytes_per_line * 3)                 \
+            + "".join([chr(j) if chr(j).isascii() and chr(j).isprintable() else "." for j in i]) \
+            + "\n"
 
         counter += bytes_per_line
+
+    return text
 
 #############
 
@@ -62,10 +66,10 @@ async def help(ctx):
 
 @bot.command()
 @commands.guild_only()
-async def read(ctx):
+async def read(ctx, bpr=16):
     """Read file"""
     with open("drive", "rb") as f:
-        await ctx.send("```" + make_hexdump(f.read()) + "```")
+        await ctx.send("```" + make_hexdump(f.read(), bytes_per_line=bpr) + "```")
 
 bot.run(os.getenv("TOKEN"))
 
