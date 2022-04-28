@@ -11,7 +11,7 @@ load_dotenv()
 
 # FUNCTIONS #
 
-def make_hexdump(data, page, bytes_per_line=16, offset=0x0000): 
+def make_hexdump(data, bytes_per_line=16, offset=0x0000): 
     # Chunk generator
     def chunks(lst, n):
         """Yield successive n-sized chunks from lst."""
@@ -44,8 +44,12 @@ async def on_ready():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.NoPrivateMessage):
         await ctx.send(ERRORS["guildonly"])
-    elif isinstance(error, commands.MissingRequiredArguments):
+    elif isinstance(error, commands.errors.MissingRequiredArgument):
         await ctx.send(ERRORS["args"])
+    elif isinstance(error, commands.errors.CommandNotFound):
+        await ctx.send(ERRORS["invalidcmd"])
+    else:
+        raise error
 
 # COMMANDS #
 
