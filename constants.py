@@ -23,5 +23,6 @@ ERRORS = {
     "args": "Please pass all required arguments!",
     "guildonly": "Commands can only be used in servers!",
     "invalidcmd": "Invalid command!",
-    "bprtoolow": "Too little bytes per line!"
+    "bprtoolow": "Too little bytes per line!",
+    "badstartpos": "Invalid start position!"
 }
