@@ -73,6 +73,36 @@ async def read(ctx, bpr: int=16):
     with open("drive", "rb") as f:
         await ctx.send("```" + make_hexdump(f.read(), bytes_per_line=bpr) + "```")
 
+@bot.command()
+@commands.guild_only()
+async def write(ctx, start_pos, data):
+    """Read file"""
+    try:
+        parsed_start_pos = int(start_pos, 0)
+    except ValueError:
+        await ctx.send(ERRORS["badstartpos"])
+        return
+
+    try:
+        b = bytes.fromhex(data)
+    except ValueError:
+        await ctx.send(ERRORS["invalidhex"])
+        return
+
+    with open("drive", "rb") as f:
+        file_data = f.read()
+
+        if parsed_start_pos + len(b) > len(file_data) or parsed_start_pos < 0:
+            await ctx.send(ERRORS["outofbounds"])
+            return
+
+        print(file_data)
+
+    with open("drive", "wb") as f:
+        f.write(file_data[:parsed_start_pos] + b + file_data[parsed_start_pos: - len(b)])
+
+    await ctx.send(f"Wrote {len(b)} byte(s) to position {parsed_start_pos} successfully!")
+
 bot.run(os.getenv("TOKEN"))
 
 ############
