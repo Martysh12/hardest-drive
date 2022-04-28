@@ -35,19 +35,24 @@ def make_hexdump(data, bytes_per_line=16, offset=0x0000):
 
     return text
 
-def write_history(user_id: int, is_write: bool, data: bytes=b""):
+def write_history(user_id: int, username: str, is_write: bool, time: str, data: bytes=b""):
     with open("history.json", "r+") as f:
         history = json.load(f)
 
         to_append = {
             "id": user_id,
+            "name": username,
             "is_write": is_write
         }
 
         if is_write:
-            to_append["data"] = binascii.b2a_base64(binary_data).decode("UTF-8")
+            to_append["data"] = binascii.b2a_base64(data).decode("UTF-8").replace("\n", "")
 
         history.append(to_append)
+
+        # Clear the file
+        f.seek(0)
+        f.truncate(0)
 
         json.dump(history, f)
 
@@ -125,6 +130,10 @@ async def read(ctx, page: int=1, bpr: int=8):
         await ctx.send(ERRORS["bprtoolow"])
         return
 
+    if page < 1:
+        await ctx.send(ERRORS["invalidpage"])
+        return
+
     with open("drive", "rb") as f:
         drive_content = f.read()
         drive_pages = [drive_content[i:i + BYTES_PER_PAGE] for i in range(0, len(drive_content), BYTES_PER_PAGE)]
@@ -138,7 +147,7 @@ async def read(ctx, page: int=1, bpr: int=8):
         global global_num_reads
         global_num_reads += 1
 
-        write_history(ctx.author.id, False)
+        write_history(ctx.author.id, str(ctx.message.author), False, datetime.datetime.now().isoformat())
 
         embed = nextcord.Embed(title="Hexdump", description=f"```{make_hexdump(current_page, bytes_per_line=bpr, offset=(page - 1) * BYTES_PER_PAGE)}```", color=0x6ad643)
         embed.set_footer(text=f"Page {page} out of {len(drive_pages)}")
@@ -176,7 +185,7 @@ async def write(ctx, start_pos, data):
     global_num_writes += 1
     global_bytes_written += len(b)
 
-    write_history(ctx.author.id, True, b)
+    write_history(ctx.author.id, str(ctx.message.author), True, datetime.datetime.now().isoformat(), b)
 
     await ctx.send(f"Wrote {len(b)} byte(s) to position {parsed_start_pos} successfully!")
 
