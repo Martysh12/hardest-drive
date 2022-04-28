@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 import binascii
 import datetime
+import json
 import os
 
 from constants import *
@@ -34,6 +35,22 @@ def make_hexdump(data, bytes_per_line=16, offset=0x0000):
 
     return text
 
+def write_history(user_id: int, is_write: bool, data: bytes=b""):
+    with open("history.json", "r+") as f:
+        history = json.load(f)
+
+        to_append = {
+            "id": user_id,
+            "is_write": is_write
+        }
+
+        if is_write:
+            to_append["data"] = binascii.b2a_base64(binary_data).decode("UTF-8")
+
+        history.append(to_append)
+
+        json.dump(history, f)
+
 #############
 
 
@@ -45,6 +62,15 @@ global_num_writes = 0
 global_bytes_written = 0
 
 #############
+
+# Setting up files
+if not os.path.exists("drive"):
+    with open("drive", "w") as f:
+        f.write("[]")
+
+if not os.path.exists("history.json"):
+    with open("history.json", "w"):
+        pass
 
 print(f"HardestDrive v1.0 by Martysh12#1610")
 
@@ -109,12 +135,14 @@ async def read(ctx, page: int=1, bpr: int=8):
             await ctx.send(ERRORS["invalidpage"])
             return
 
+        global global_num_reads
+        global_num_reads += 1
+
+        write_history(ctx.author.id, False)
+
         embed = nextcord.Embed(title="Hexdump", description=f"```{make_hexdump(current_page, bytes_per_line=bpr, offset=(page - 1) * BYTES_PER_PAGE)}```", color=0x6ad643)
         embed.set_footer(text=f"Page {page} out of {len(drive_pages)}")
         await ctx.send(embed=embed)
-
-        global global_num_reads
-        global_num_reads += 1
 
 @bot.command()
 @commands.guild_only()
@@ -142,13 +170,15 @@ async def write(ctx, start_pos, data):
     with open("drive", "wb") as f:
         f.write(file_data[:parsed_start_pos] + b + file_data[parsed_start_pos: - len(b)])
 
-    await ctx.send(f"Wrote {len(b)} byte(s) to position {parsed_start_pos} successfully!")
-
     global global_num_writes
     global global_bytes_written
 
     global_num_writes += 1
     global_bytes_written += len(b)
+
+    write_history(ctx.author.id, True, b)
+
+    await ctx.send(f"Wrote {len(b)} byte(s) to position {parsed_start_pos} successfully!")
 
 write_read_report.start()
 bot.run(os.getenv("TOKEN"))
