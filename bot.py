@@ -60,6 +60,13 @@ async def help(ctx):
     """Show help"""
     await ctx.send(HELP)
 
+@bot.command()
+@commands.guild_only()
+async def read(ctx):
+    """Read file"""
+    with open("drive", "rb") as f:
+        await ctx.send("```" + make_hexdump(f.read()) + "```")
+
 bot.run(os.getenv("TOKEN"))
 
 ############
