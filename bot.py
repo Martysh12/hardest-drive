@@ -66,7 +66,7 @@ async def help(ctx):
 
 @bot.command()
 @commands.guild_only()
-async def read(ctx, bpr=16):
+async def read(ctx, bpr: int=16):
     """Read file"""
     if bpr < 4:
         await ctx.send(ERRORS["bprtoolow"])
