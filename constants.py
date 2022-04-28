@@ -20,5 +20,6 @@ from the start of the hard drive.
 
 ERRORS = {
     "args": "Please pass all required arguments!",
-    "guildonly": "Commands can only be used in servers!"
+    "guildonly": "Commands can only be used in servers!",
+    "invalidcmd": "Invalid command!"
 }
