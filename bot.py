@@ -184,11 +184,14 @@ async def write(ctx, start_pos, data):
         await ctx.send(ERRORS["badstartpos"])
         return
 
-    try:
-        b = bytes.fromhex(data)
-    except ValueError:
-        await ctx.send(ERRORS["invalidhex"])
-        return
+    if data.startswith("\'") and data.endswith("\'") and len(data) >= 3: # it's text
+        b = data[1:-1].encode("UTF-8")
+    else:
+        try:
+            b = bytes.fromhex(data)
+        except ValueError:
+            await ctx.send(ERRORS["invalidhex"])
+            return
 
     if len(b) > limits[ctx.author.id]:
         await ctx.send(ERRORS["limited"].format(len(b), limits[ctx.author.id]))
