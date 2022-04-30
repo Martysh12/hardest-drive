@@ -6,8 +6,11 @@ from dotenv import load_dotenv
 import binascii
 import curses
 import datetime
+import io
 import json
+import math
 import os
+import textwrap
 
 from constants import *
 
@@ -75,6 +78,9 @@ limits_last_cleared = 0
 # Graphics-related variables
 stdscr = curses.initscr()
 
+log_stream = io.StringIO()
+event_stream = io.StringIO()
+
 #############
 
 # Setting up files
@@ -86,9 +92,10 @@ if not os.path.exists("history.json"):
     with open("history.json", "w"):
         pass
 
-print(f"HardestDrive v1.0 by Martysh12#1610")
+print(f"HardestDrive v1.0 by Martysh12#1610", file=log_stream)
 
 # Setting up graphics
+curses.curs_set(False)
 stdscr.clear()
 
 bot = commands.Bot(command_prefix=PREFIX, activity=nextcord.Game(PREFIX + "help"))
@@ -96,11 +103,109 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    print(f"Ready! Logged in as {bot.user} (ID: {bot.user.id})")
+    print(f"Ready! Logged in as {bot.user} (ID: {bot.user.id})", file=log_stream)
 
 @tasks.loop(seconds=1)
 async def graphics():
-    pass
+    stdscr.clear()
+
+    rows, cols = stdscr.getmaxyx()
+
+    # Drawing screen borders #
+
+    stdscr.addstr(
+        0,
+        0,
+        BORDER_CHARS["corners"]["down_right"].ljust(
+            cols - 1, BORDER_CHARS["flat"]["horizontal"]
+        )
+        + BORDER_CHARS["corners"]["down_left"],
+    )
+
+    for i in range(1, rows - 1):
+        stdscr.addstr(
+            i,
+            0,
+            BORDER_CHARS["flat"]["vertical"].ljust(cols - 1)
+            + BORDER_CHARS["flat"]["vertical"],
+        )
+
+    stdscr.addstr(
+        rows - 1,
+        0,
+        BORDER_CHARS["corners"]["up_right"].ljust(
+            cols - 1, BORDER_CHARS["flat"]["horizontal"]
+        ),
+    )
+    stdscr.insch(rows - 1, cols - 1, ord(BORDER_CHARS["corners"]["up_left"]))
+
+    ##########################
+
+    # Drawing panels #
+
+    stdscr.addch(0, round(cols / 2), BORDER_CHARS["half_crosses"]["horizontal_down"])
+
+    for i in range(1, round(rows / 2)):
+        stdscr.addstr(
+            i,
+            1,
+            BORDER_CHARS["flat"]["vertical"].rjust(round(cols / 2))
+        )
+
+    stdscr.addstr(
+        round(rows / 2), 0,
+        BORDER_CHARS["half_crosses"]["vertical_right"]                    \
+        + BORDER_CHARS["flat"]["horizontal"] * (math.ceil(cols / 2) - 1)  \
+        + BORDER_CHARS["half_crosses"]["horizontal_up"]                   \
+        + BORDER_CHARS["flat"]["horizontal"] * (math.floor(cols / 2) - 2) \
+        + BORDER_CHARS["half_crosses"]["vertical_left"]
+    )
+
+    stdscr.addstr(round(rows / 2), round(cols * 2/3), BORDER_CHARS["half_crosses"]["horizontal_down"])
+    for i in range(round(rows / 2) + 1, rows - 1):
+        stdscr.addstr(i, round(cols * 2/3), BORDER_CHARS["flat"]["vertical"])
+    stdscr.addstr(rows - 1, round(cols * 2/3), BORDER_CHARS["half_crosses"]["horizontal_up"])
+
+    ##################
+
+    # Drawing text #
+
+    stdscr.addstr(0, 2, " Log ")
+    stdscr.addstr(0, math.ceil(cols / 2) + 2, " Events ")
+
+    stdscr.addstr(round(rows / 2), 2, " Statistics ")
+
+    ################
+
+    # Drawing data #
+
+    wrapped_log = [
+        line
+        for para in log_stream.getvalue().split('\n')
+        for line in textwrap.wrap(
+            para,
+            width=math.ceil(cols / 2) - 2
+        )
+    ][-round((rows / 2) - 2):]
+
+    for i, v in enumerate(wrapped_log):
+        stdscr.addstr(i + 1, 2, v)
+
+    wrapped_events = [
+        line
+        for para in event_stream.getvalue().split('\n')
+        for line in textwrap.wrap(
+            para,
+            width=math.floor(cols / 2) - 2
+        )
+    ][-round((rows / 2) - 2):]
+
+    for i, v in enumerate(wrapped_events):
+        stdscr.addstr(i + 1, math.ceil(cols / 2) + 2, v)
+
+    ################
+
+    stdscr.refresh()
 
 @tasks.loop(minutes=LIMIT_RESET_MINUTES)
 async def clear_limits():
@@ -112,7 +217,7 @@ async def clear_limits():
 
     limits_last_cleared = datetime.datetime.now()
 
-    print(f"[{datetime.datetime.now().strftime('%X')}] Limits have been reset.")
+    print(f"[{datetime.datetime.now().strftime('%X')}] Limits have been reset.", file=log_stream)
 
 # Checking for errors
 @bot.event
@@ -159,6 +264,7 @@ async def read(ctx, page: int=1, bpr: int=8):
         global global_num_reads
         global_num_reads += 1
 
+        print(f"[{datetime.datetime.now().strftime('%X')}] READ:\t{str(ctx.author)}, {page=}, {bpr=}", file=event_stream)
         write_history(ctx.author.id, str(ctx.message.author), False, datetime.datetime.now().isoformat())
 
         embed = nextcord.Embed(title="Hexdump", description=f"```{make_hexdump(current_page, bytes_per_line=bpr, offset=(page - 1) * BYTES_PER_PAGE)}```", color=0x6ad643)
@@ -209,6 +315,7 @@ async def write(ctx, start_pos, data):
     global_bytes_written += len(b)
 
     write_history(ctx.author.id, str(ctx.message.author), True, datetime.datetime.now().isoformat(), b)
+    print(f"[{datetime.datetime.now().strftime('%X')}] WRITE:\t{str(ctx.author)}, {parsed_start_pos=}, {b=}", file=event_stream)
 
     limits[ctx.author.id] -= len(b)
 
