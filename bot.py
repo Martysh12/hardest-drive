@@ -4,6 +4,7 @@ from nextcord.ext import commands, tasks
 from dotenv import load_dotenv
 
 import binascii
+import curses
 import datetime
 import json
 import os
@@ -92,7 +93,7 @@ async def on_ready():
     print(f"Ready! Logged in as {bot.user} (ID: {bot.user.id})")
 
 @tasks.loop(minutes=5)
-async def write_read_report():
+async def graphics():
     global global_num_reads
     global global_num_writes
     global global_bytes_written
@@ -231,7 +232,7 @@ async def limit(ctx):
 
     await ctx.send(message)
 
-write_read_report.start()
+graphics.start()
 clear_limits.start()
 bot.run(os.getenv("TOKEN"))
 
