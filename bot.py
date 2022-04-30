@@ -293,8 +293,10 @@ async def read(ctx, page: int=1, bpr: int=8):
 
 @bot.command()
 @commands.guild_only()
-async def write(ctx, start_pos, data):
+async def write(ctx, start_pos, *data):
     """Read file"""
+
+    data = " ".join(data)
 
     if ctx.author.id not in limits:
         limits[ctx.author.id] = 8
@@ -353,6 +355,8 @@ async def limit(ctx):
     message = ""
     message += f"You have {limits[ctx.author.id]} byte(s) left.\n"
     message += f"Limits reset <t:{round((limits_last_cleared + datetime.timedelta(minutes=5)).timestamp())}:R>."
+    
+    print(f"[{datetime.datetime.now().strftime('%X')}] LIMIT:\t{str(ctx.author)}, {limits[ctx.author.id]}", file=event_stream)
 
     await ctx.send(message)
 
