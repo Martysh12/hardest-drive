@@ -161,11 +161,6 @@ async def graphics():
         + BORDER_CHARS["half_crosses"]["vertical_left"]
     )
 
-    stdscr.addstr(round(rows / 2), round(cols * 2/3), BORDER_CHARS["half_crosses"]["horizontal_down"])
-    for i in range(round(rows / 2) + 1, rows - 1):
-        stdscr.addstr(i, round(cols * 2/3), BORDER_CHARS["flat"]["vertical"])
-    stdscr.addstr(rows - 1, round(cols * 2/3), BORDER_CHARS["half_crosses"]["horizontal_up"])
-
     ##################
 
     # Drawing text #
