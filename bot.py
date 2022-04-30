@@ -72,6 +72,9 @@ limits = {}
 
 limits_last_cleared = 0
 
+# Graphics-related variables
+stdscr = curses.initscr()
+
 #############
 
 # Setting up files
@@ -85,6 +88,9 @@ if not os.path.exists("history.json"):
 
 print(f"HardestDrive v1.0 by Martysh12#1610")
 
+# Setting up graphics
+stdscr.clear()
+
 bot = commands.Bot(command_prefix=PREFIX, activity=nextcord.Game(PREFIX + "help"))
 bot.remove_command('help')
 
@@ -92,21 +98,9 @@ bot.remove_command('help')
 async def on_ready():
     print(f"Ready! Logged in as {bot.user} (ID: {bot.user.id})")
 
-@tasks.loop(minutes=5)
+@tasks.loop(seconds=1)
 async def graphics():
-    global global_num_reads
-    global global_num_writes
-    global global_bytes_written
-
-    print(f"[{datetime.datetime.now().strftime('%X')}] Operations since {datetime.datetime.now() - datetime.timedelta(minutes=5)}:")
-    print("\t" + "Reads: "         + str(global_num_reads))
-    print("\t" + "Writes: "        + str(global_num_writes))
-    print("\t" + "Bytes written: " + str(global_bytes_written))
-    print()
-
-    global_num_reads = 0
-    global_num_writes = 0
-    global_bytes_written = 0
+    pass
 
 @tasks.loop(minutes=LIMIT_RESET_MINUTES)
 async def clear_limits():
