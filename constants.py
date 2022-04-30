@@ -49,22 +49,22 @@ ERRORS = {
 BYTES_PER_PAGE = 128
 LIMIT_RESET_MINUTES = 5
 
-BORDER_CHARS = {  # │ ─ ┌ ┬ ┐ ├ ┼ ┤ └ ┴ ┘
+BORDER_CHARS = {  # ║ ═ ╔ ╦ ╗ ╠ ╬ ╣ ╚ ╩ ╝
     "flat": {
-        "vertical": "│",
-        "horizontal": "─",
+        "vertical": "║",
+        "horizontal": "═",
     },
     "corners": {
-        "down_right": "┌",
-        "down_left": "┐",
-        "up_right": "└",
-        "up_left": "┘",
+        "down_right": "╔",
+        "down_left": "╗",
+        "up_right": "╚",
+        "up_left": "╝",
     },
     "half_crosses": {
-        "vertical_right": "├",
-        "vertical_left": "┤",
-        "horizontal_down": "┬",
-        "horizontal_up": "┴",
+        "vertical_right": "╠",
+        "vertical_left": "╣",
+        "horizontal_down": "╦",
+        "horizontal_up": "╩",
     },
-    "cross": "┼",
+    "cross": "╬",
 }
