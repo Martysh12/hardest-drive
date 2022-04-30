@@ -71,6 +71,8 @@ global_num_reads = 0
 global_num_writes = 0
 global_bytes_written = 0
 
+last_bytes_written = b''
+
 limits = {}
 
 limits_last_cleared = 0
@@ -105,7 +107,7 @@ bot.remove_command('help')
 async def on_ready():
     print(f"Ready! Logged in as {bot.user} (ID: {bot.user.id})", file=log_stream)
 
-@tasks.loop(seconds=1)
+@tasks.loop(seconds=0.5)
 async def graphics():
     stdscr.clear()
 
@@ -197,6 +199,29 @@ async def graphics():
 
     for i, v in enumerate(wrapped_events):
         stdscr.addstr(i + 1, math.ceil(cols / 2) + 2, v)
+
+    # Statistics
+    stdscr.addstr(round(rows / 2) + 1, 2, f"Times read          : {global_num_reads}")
+    stdscr.addstr(round(rows / 2) + 2, 2, f"Times written       : {global_num_writes}")
+
+    stdscr.addstr(round(rows / 2) + 4, 2, f"Total bytes written : {global_bytes_written}")
+
+    stdscr.addstr(round(rows / 2) + 6, 2, f"Last bytes written  : {last_bytes_written}")
+
+    
+
+    with open("drive", "rb") as f:
+        drive_content = f.read()
+        page = [drive_content[i:i + 256] for i in range(0, len(drive_content), 256)][0]
+
+        split_hexdump = make_hexdump(page, bytes_per_line=16).split("\n")
+
+        x_pos = cols - len(max(split_hexdump, key=len)) - 2
+
+        stdscr.addstr(round(rows / 2) + 1, x_pos, f"1st & 2nd page hexdump:")
+
+        for i, v in enumerate(split_hexdump):
+            stdscr.addstr(i + round(rows / 2) + 3, x_pos, v)
 
     ################
 
@@ -313,6 +338,9 @@ async def write(ctx, start_pos, data):
     print(f"[{datetime.datetime.now().strftime('%X')}] WRITE:\t{str(ctx.author)}, {parsed_start_pos=}, {b=}", file=event_stream)
 
     limits[ctx.author.id] -= len(b)
+
+    global last_bytes_written
+    last_bytes_written = b
 
     await ctx.send(f"Wrote {len(b)} byte(s) to position {parsed_start_pos} successfully!")
 
