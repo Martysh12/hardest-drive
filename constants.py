@@ -68,3 +68,6 @@ BORDER_CHARS = {  # ║ ═ ╔ ╦ ╗ ╠ ╬ ╣ ╚ ╩ ╝
     },
     "cross": "╬",
 }
+
+DRIVE_PATH = "drive.dat"
+HISTORY_PATH = "history.json"

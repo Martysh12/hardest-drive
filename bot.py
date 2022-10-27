@@ -40,7 +40,7 @@ def make_hexdump(data, bytes_per_line=16, offset=0x0000):
     return text
 
 def write_history(user_id: int, username: str, is_write: bool, time: str, data: bytes=b""):
-    with open("history.json", "r+") as f:
+    with open(HISTORY_PATH, "r+") as f:
         history = json.load(f)
 
         to_append = {
@@ -86,13 +86,13 @@ event_stream = io.StringIO()
 #############
 
 # Setting up files
-if not os.path.exists("drive"):
-    with open("drive", "w") as f:
-        f.write("[]")
+if not os.path.exists(DRIVE_PATH):
+    with open(DRIVE_PATH, "wb") as f:
+        f.write(b'\x00' * 1024)
 
-if not os.path.exists("history.json"):
-    with open("history.json", "w"):
-        pass
+if not os.path.exists(HISTORY_PATH):
+    with open(HISTORY_PATH, "w"):
+        f.write("[]")
 
 print(f"HardestDrive v1.0 by Martysh12#1610", file=log_stream)
 
@@ -210,7 +210,7 @@ async def graphics():
 
     
 
-    with open("drive", "rb") as f:
+    with open(DRIVE_PATH, "rb") as f:
         drive_content = f.read()
         page = [drive_content[i:i + 256] for i in range(0, len(drive_content), 256)][0]
 
@@ -271,7 +271,7 @@ async def read(ctx, page: int=1, bpr: int=8):
         await ctx.send(ERRORS["invalidpage"])
         return
 
-    with open("drive", "rb") as f:
+    with open(DRIVE_PATH, "rb") as f:
         drive_content = f.read()
         drive_pages = [drive_content[i:i + BYTES_PER_PAGE] for i in range(0, len(drive_content), BYTES_PER_PAGE)]
 
@@ -320,14 +320,14 @@ async def write(ctx, start_pos, *data):
         await ctx.send(ERRORS["limited"].format(len(b), limits[ctx.author.id]))
         return
 
-    with open("drive", "rb") as f:
+    with open(DRIVE_PATH, "rb") as f:
         file_data = f.read()
 
         if parsed_start_pos + len(b) > len(file_data) or parsed_start_pos < 0:
             await ctx.send(ERRORS["outofbounds"])
             return
 
-    with open("drive", "wb") as f:
+    with open(DRIVE_PATH, "wb") as f:
         f.write(file_data[:parsed_start_pos] + b + file_data[parsed_start_pos + len(b):])
 
     global global_num_writes
