@@ -91,7 +91,7 @@ if not os.path.exists(DRIVE_PATH):
         f.write(b'\x00' * 1024)
 
 if not os.path.exists(HISTORY_PATH):
-    with open(HISTORY_PATH, "w"):
+    with open(HISTORY_PATH, "w") as f:
         f.write("[]")
 
 print(f"HardestDrive v1.0 by Martysh12#1610", file=log_stream)
@@ -100,14 +100,18 @@ print(f"HardestDrive v1.0 by Martysh12#1610", file=log_stream)
 curses.curs_set(False)
 stdscr.clear()
 
-bot = commands.Bot(command_prefix=PREFIX, activity=nextcord.Game(PREFIX + "help"))
+# Set up bot and intents
+intents = nextcord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix=PREFIX, activity=nextcord.Game(PREFIX + "help"), intents=intents)
 bot.remove_command('help')
 
 @bot.event
 async def on_ready():
     print(f"Ready! Logged in as {bot.user} (ID: {bot.user.id})", file=log_stream)
 
-@tasks.loop(seconds=0.5)
+@tasks.loop(seconds=2)
 async def graphics():
     stdscr.clear()
 
